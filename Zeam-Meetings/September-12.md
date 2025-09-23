@@ -67,8 +67,8 @@ Ladislaus: Yeah. Yeah. Let me I'm not sure if the if this group gathers regularl
 00:10:01
  
 Ladislaus: Yeah. But generally agree. Yeah.
-Gajinder Singh: Right. Right. Uh cool. Moving to another point, Gim that you mentioned uh that we actually need right now is we do need SSD list uh to work. So I think Chetany, how far are we from adding the test that Gam talked about?
-Chetany Bhardwaj: Yes. So, uh I was looking into fast SSG and I found there were some validations that we did not have. So, which were like critical validation. So, uh I I have created those those are the tests right?
+Gajinder Singh: Right. Right. Uh cool. Moving to another point, Gim that you mentioned uh that we actually need right now is we do need SSZ list uh to work. So I think Chetany, how far are we from adding the test that Gam talked about?
+Chetany Bhardwaj: Yes. So, uh I was looking into fast SSZ and I found there were some validations that we did not have. So, which were like critical validation. So, uh I I have created those those are the tests right?
 Gajinder Singh: But what about adding the validators list for example from beacon? Let me try.
 Chetany Bhardwaj: Yes, those tests uh I I have most of them with me. The validator one not added yet the one I asked you about but that is I believe one or two test only. So uh I can add that today itself. Uh but what I worked on was the validation part for uh the decode and
 Gajinder Singh: So one of so I understand so one of the thing is basically you know uh you so there are two things that that we test that you know positive cases and negative cases.
@@ -89,20 +89,20 @@ Gajinder Singh: So if we have the the validator list working as expected it's ba
 Chetany Bhardwaj: Right. So you're talking about the test for the validator uh structs or like implemented validator structs directly.
 Gajinder Singh: So basically a so I think we would have uh some block body test in uh in in the SSZ library itself. So in the body basically you add a validators array and do SSZ serialization deserialization merkleization right and uh verify correct.
 Chetany Bhardwaj: Right. Right. So just extending the beam block body test for now adding a value. Right. Right. Yes. I I'll do that.
-Gajinder Singh: Yeah, if you do that and once you have done basically then I can uh sort of integrate the SS library from there on
+Gajinder Singh: Yeah, if you do that and once you have done basically then I can uh sort of integrate the SSZ library from there on
 Chetany Bhardwaj: Sure. Sure. Sure. I'll get to it. Uh today itself uh I just needed some clarity on the validator thing I asked you yesterday or day before.
  
  
 00:13:14
  
 Chetany Bhardwaj: So I'll get to it. and more again the happy cases and the serialization and des serialization in general I've checked for a lot of things uh there is also a ze style test uh I believe the name of the test is that uh that mimics what we have in ze the commented out code that uses instead of just regular slices uh these list so that also works but I'll add the validator uh array tests as
-Gajinder Singh: Okay. So once you have done that then maybe it would be good that if you would basically want to make those changes in uh in Zeam types itself so that you know in compliance with SS structure right in compliance with Devnet zero. So would you like to do that right?
+Gajinder Singh: Okay. So once you have done that then maybe it would be good that if you would basically want to make those changes in uh in Zeam types itself so that you know in compliance with SSZ structure right in compliance with Devnet zero. So would you like to do that right?
 Chetany Bhardwaj: Uh, yep. I I I I'd be happy to do that. Again, I'll need to do a bit more study around the Zeam codebase. I have a basic idea. I did uh the changes as I said last week as well, but that was Yes.
  
  
 00:14:12
  
-Gajinder Singh: So we we need these things urgently. So like you know if you are able to complete the SS today and uh so I think by in next 2 three days by Tuesday we we should uh be able to integrate it into Zeam will possible.
+Gajinder Singh: So we we need these things urgently. So like you know if you are able to complete the SSZ today and uh so I think by in next 2 three days by Tuesday we we should uh be able to integrate it into Zeam will possible.
 Chetany Bhardwaj: Mhm. Right. Right. I think this is doable.
 Gajinder Singh: Cool. All right. Okay. Uh I guess that also covers your update. Uh coming to my update. Uh so I was able to implement the entire for choice uh changes that we did for Devnet zero and they are now uh in our Zeam codebase. Uh there are few things that I want to improve for example how the votes are added uh for block building. So those are the things those are the improvements that I want to do but as such we are functionality complete and the second PR is to basically uh comply with uh uh the types uh with state transition changes that you know we merged in Devnet zero. So those that PR is all already up and maybe Noopur is sort of resolving uh some build and test issues around it.
  
