@@ -1,9 +1,9 @@
 # Zeam Weekly call - Meeting Notes and Transcript
-# Date: September 12, 2025
+# Date: September 19, 2025
 
 ## Meeting Overview
-**Date:** September 12, 2025
-**Recording:** 
+**Date:** September 19, 2025
+**Recording:** https://youtu.be/5n_A4t9Becs
 
 ---
 ## Meeting Notes
