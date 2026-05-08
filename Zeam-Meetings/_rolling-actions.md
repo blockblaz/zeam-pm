@@ -125,3 +125,64 @@ Items closed during the May 1 call are excluded. Everything raised on May 1 is i
 4. **Kai:** lint #715 → merge #754
 5. **Katya:** alert hygiene + Telegram 400 + Grafana retry semantics
 6. **Noopur:** Zclaw approve-PR config + transcript auto-ingest + DM-regression watch
+
+---
+
+## 📋 Next Call Agenda — May 8, 2026
+
+*Each owner reports back on what they committed to on May 1 + any new blockers.*
+
+### 1. Carry-over status check (5 min)
+Quick round-table: did the hot-list items land?
+- Anshal — Zig 0.16 upgrade merged?
+- Gajinder — review backlog cleared (#812, #754, #715, hashtree-root cache)?
+- Partha — multi-subnet runs stable? `safe_target` spec PR filed?
+- Kai — #715 lint fixed, #754 merged?
+- Katya — alert spam controlled? Telegram 400 resolved?
+- Noopur — Zclaw approve-PR config live?
+
+### 2. DevNet 4 — multi-subnet stability (Partha lead, ~10 min)
+- Outcome of week's multi-subnet stability runs (with PR #812 merged)
+- New issues discovered, especially around aggregator behavior
+- Decision: scale up subnets further this week, or stabilise first?
+- `gossip duplicate` warning — root-caused?
+- Preferential peering on `attnets` — PR status
+
+### 3. Mutex / parallelization strategy (Gajinder + Anshal + Partha + Kai, ~10 min)
+- Doc review status — all reviewers aligned?
+- Follow-up PRs: which ones merged, which still open
+- Kai's concern on rust-libp2p + libxev event-loop threads — Lighthouse comparison done? Conclusion?
+- Open question: should heavy logic move off libxev timer thread?
+
+### 4. Spec PRs in flight (~5 min)
+- Partha: `safe_target` on `new` votes — filed? Toma's spectest concern resolved?
+- Kai: `+1 slot` gossip-attestation tolerance question — raised in PQ-interop?
+- Katya: `tick_interval` upstream PR + new gossip metric — status
+- Anshal: DevNet 5 spec PR (target was Wed) — filed?
+
+### 5. DevNet 5 (Anshal lead, ~5 min)
+- Proof deconstruction — Emile's APIs reviewed?
+- Goldfish for `safe_target` (Gajinder) — initial findings
+- Hashing decision — any updates? hashsig CLI removal status
+
+### 6. DevNet 6 planning (Gajinder, ~5 min)
+- Execution integration + validator life-cycle plan
+- PBS vs ePBS — any movement from EF research side?
+- Timeline check toward EOY public devnet goal
+
+### 7. Tooling / Zclaw (Noopur + Katya, ~5 min)
+- PR approval permission live? Tested by team?
+- Alert auto-investigation working? Hallucination rate after upgrade
+- Transcript auto-ingest — implemented?
+- Twitter weekly-update accuracy fix — verified?
+- First-issue labels for external contributors
+
+### 8. External contributors / housekeeping (~3 min)
+- Status of parked `do not merge` PRs (CLA flag, mutex)
+- Any new contributor PRs to triage
+
+### 9. AOB / open the floor (~5 min)
+
+---
+
+*Total target: ~50 min. If running long, defer DevNet 6 planning to async.*
