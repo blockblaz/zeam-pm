@@ -1,137 +1,159 @@
 # Zeam Rolling Action List
 
-*Last updated: 2026-05-22 (Fri) · Scope: May 8 + May 15 calls, Zeam Telegram group archive through 2026-05-22 09:55 UTC, and GitHub state checked on 2026-05-22.*
+*Last updated: 2026-06-05 (Fri) · Scope: May 8, May 15, May 22, and May 29 calls; Zeam Telegram group archive through 2026-06-04; GitHub spot-check on 2026-06-05.*
 
 This file tracks work that survived the weekly calls / community discussion. Closed items are listed once so they do not keep reappearing as stale action items.
 
-**Legend:** ✅ done · 🔥 hot / active · 🔄 carry · 🆕 new since May 15 · 📌 planning/deferred · ⚠️ blocked/watch
+**Legend:** ✅ done · 🔥 hot / active · 🔄 carry · 🆕 new since May 22 · 📌 planning/deferred · ⚠️ blocked/watch
 
 ---
 
 ## ✅ Recently closed / resolved
 
-### Specs, metrics, and DevNet 5
-- ✅ `leanEthereum/leanSpec#717` — **DevNet 5 aggregated block proof** merged.
-- ✅ `leanEthereum/leanSpec#735` — aggregate coverage metrics with subnet labels merged.
-- ✅ `blockblaz/zeam#876` — attestation subnet coverage logging merged.
-- ✅ `blockblaz/zeam#898` — aggregate coverage metrics labelled by slot/subnet merged.
-- ✅ `blockblaz/zeam#914` — block proposal attestation build metrics merged.
+### DevNet 5 / shadow / CI
+- ✅ `leanEthereum/leanSpec#717` — DevNet 5 aggregated block proof merged; Zeam implementation work moved into `blockblaz/zeam#918`.
+- ✅ `blockblaz/zeam#931` — CI task for `shadow` branch auto-rebase + release status merged/closed.
+- ✅ `blockblaz/zeam#972` — leanMultisig `multisig-glue` dependency bump merged.
+- ✅ `blockblaz/zeam#946` — DevNet 4 Hive client-interop release branch fix closed.
 
-### DevNet 4 / aggregation / hot-path work
+### DevNet 4 / aggregation / robustness
+- ✅ `blockblaz/zeam#915` — minor cleanup closed; May 22 discussion had requested review/approval.
+- ✅ `blockblaz/zeam#948` — robustness/metrics PR connected to `#942` closed; May 29 call treated it as part of the snappy/decode recovery investigation.
+- ✅ Earlier aggregation/metrics fixes remain closed: `#900`, `#902`, `#903`, `#914`, leanSpec `#735`, Zeam `#876`, Zeam `#898`.
+
+### Older merged items kept for context
 - ✅ `blockblaz/zeam#812` / issue `#811` — selective attestation subnet subscription fix merged/closed.
-- ✅ `blockblaz/zeam#882` — invalid `blocks_by_range` / `blocks_by_root` request handling merged.
-- ✅ `blockblaz/zeam#883` — slot-driver watchdog + chain `onBlock` substep histogram merged.
-- ✅ `blockblaz/zeam#884` — lock-free public-key cache merged.
-- ✅ `blockblaz/zeam#886` — slot-driver starvation under gossip flood fix merged.
-- ✅ `blockblaz/zeam#900` — limit aggregate signature builds to active slot merged.
-- ✅ `blockblaz/zeam#902` — aggregator publish counter + gossip signature coverage metrics merged.
-- ✅ `blockblaz/zeam#903` — ThinLTO / Rayon threads / leanMultisig bump merged.
-
-### Older review backlog
-- ✅ `blockblaz/zeam#715` — SSZ roundtrip spectest runner merged.
-- ✅ Zig 0.16 upgrade was reported merged in the May 8 call.
+- ✅ `blockblaz/zeam#882`, `#883`, `#884`, `#886` — request handling, slot-driver watchdog, PK cache, and gossip flood/starvation fixes landed.
+- ✅ Zig 0.16 upgrade was reported merged in earlier calls.
 
 ---
 
-## 🔥 Hot list — May 22 onward
+## 🔥 Hot list — after May 22 + May 29 calls
 
-1. **Aggregation performance remains the top technical risk.** Issue `blockblaz/zeam#899` is still open: Zeam aggregate build was observed at ~2–3s vs ethlambda ~0.4s on DevNet 4.
-2. **Run/compare the latest aggregation fixes** (`#900`, `#902`, `#903`, `#914`) on DevNet/shadow sims and decide the next optimization path.
-3. **Default topology:** lean-quickstart / DevNet runs should use **one aggregator per subnet by default**. Multi-subnet “super aggregator” remains a manual/high-hardware test mode.
-4. **Shadow simulations:** define exactly what questions the shadow sims should answer: aggregator hardware profile, subnet count per aggregator, redundancy, aggregation window, and whether recursive/second-level aggregation is viable.
-5. **DevNet 5 implementation:** spec is merged; client implementation and CI fixture practicality are now the active blockers.
-6. **Zclaw automation:** automatic issue/PR command polling appears unreliable; verify and fix so GitHub/Telegram commands are processed without manual prompting.
-7. **Release automation:** release PR + DevNet 4 tagged image workflow should report whether the `shadow` branch rebased successfully.
+1. **DevNet 4 multi-subnet finality/stability remains the top technical risk.** `blockblaz/zeam#899` is still open for aggregation performance; `#942` is still open for all-Zeam-node stalls around snappy/decode/gossip behavior.
+2. **Aggregation path needs priority + deadline semantics.** May 22 call: process attestation data matching local fork-choice first; publish each aggregate immediately when ready; expose/configure aggregation parallelization factor; avoid waiting for all compactions if block/proposal deadline is hit.
+3. **Block proposal should stop at deadline and publish what is ready.** If compaction misses the window, do not keep building a doomed block; propose with compacted payloads available by the deadline and let later slots fill gaps.
+4. **DevNet 4 diagnostics:** use subnet aggregate coverage + gossip attestation coverage metrics to identify which subnets/clients are missing attestations/aggregates; other clients should add comparable metrics where possible.
+5. **Snappy/decode stall investigation (`#942`):** rename scary “corrupt” language to invalid/bad snappy input where appropriate; inspect debug logs slot-by-slot; understand why Zeam stops receiving gossip while peers remain connected; confirm whether `blocks_by_root` should or should not trigger for rejected bad blocks.
+6. **Validation matrix requested May 29:** run all-Zeam nodes, run without ethlambda, preserve/copy logs before restarts, then reintroduce other clients once stability/P95 improves.
+7. **DevNet 5 implementation and shadow readiness:** `blockblaz/zeam#918` is open; need CI simtest practicality via larger slot time/config, eLambda interop finalization screenshot, and shadow branch readiness for Kamil/PQ interop.
+8. **Shadow simulations:** start with one aggregator per subnet, realistic bandwidth/latency topologies, artificial compute sleeps for aggregation/verification, and later visualization/overnight “auto research” runs.
+9. **Zclaw / project tracking automation:** keep transcripts + Telegram + GitHub as the three sources of truth; continue updating this repository and rolling list after meetings.
 
 ---
 
 ## 👤 Gajinder
 
 ### Active
-- 🔥 Continue reviewing / steering **aggregation performance** work from `#899` and follow-on PRs.
-- 🔥 Drive the default **one aggregator per subnet** topology for DevNet runs; keep “super aggregator” as a manual override for heavier machines.
-- 🔥 Use the latest metrics to decide whether the remaining bottleneck is signature aggregation, libxev/libp2p thread blocking, peer/fetch behavior, or block proposal aggregation.
-- 🔄 Continue Z-to-Z / Beam-style runs and add logging/metrics where the cause is still opaque.
-- 🔄 Review DevNet 5 implementation alignment: single block signature reuse, proof deconstruction/splitting behavior, and whether proposer behavior matches fork-choice justified/finalized state.
-- 📌 DevNet 6 planning: execution integration is the likely DevNet 6 focus. PQ heartbeat is **out of DevNet 5** and likely **out of DevNet 6** unless a clear proposal lands first.
-- 📌 Keep execution integration aligned with the latest Engine API fork; fork-by-fork bumps are acceptable.
+- 🔥 Continue steering DevNet 4 aggregation and stall investigations: `#899`, `#942`, and follow-up PRs.
+- 🔥 Review/debug DevNet 4 logs slot-by-slot, especially around slots where gossip stops or head/finalized state diverges.
+- 🔥 Push for deadline-based block proposal / aggregation behavior: prioritize local fork-choice attestation data; publish partial-ready aggregates/blocks before the deadline.
+- 🔥 Keep default topology at **one aggregator per subnet** for baseline runs; treat multi-subnet / super-aggregator modes as manual experiments after baseline stability.
+- 🔄 Review DevNet 5 implementation alignment in `#918`: aggregated block proof, proof deconstruction/splitting behavior, proposer/fork-choice behavior, and CI fixture practicality.
+- 🔄 Coordinate public/interop milestone messaging once Kai provides eLambda finalization screenshot.
+- 📌 Continue DevNet 6 / execution integration planning; keep PQ heartbeat out unless a clear proposal lands.
 
 ### Watch / backlog
 - 🔄 `blockblaz/zeam#754` remains open — attestation handling / leanSpec alignment.
 - 🔄 `blockblaz/zeam#817` remains open — async response handling / lock-free RPC serving; still needs value/mergeability decision.
-- 🔄 `blockblaz/zeam#915` remains open — minor cleanup, requested review/approval in Telegram.
+- 🔄 `blockblaz/zeam#863` remains open — slow slot interval / event-loop starvation; previous fixes landed but validation remains.
+- 🔄 `blockblaz/zeam#910` remains open — slot-aware `blocks_by_root` peer selection.
 
 ---
 
 ## 👤 Parthasarathy (Partha / @grapebaba)
 
 ### Active
-- 🔥 Keep leading DevNet 4 multi-subnet / high-validator testing.
-  - May 15 status: 64-validator run existed; Hetzner quota increase was granted; next step was provisioning for 128-validator runs before/around the May 22 call.
-- 🔥 Validate latest aggregation fixes in a long run and update `#863` / `#899` with whether slot-driver stalls, lock contention, or signature build cost still dominate.
-- 🔥 Ensure lean-quickstart defaults to **one aggregator per subnet**, not aggregators listening to all subnets. Manual edits can still test multi-subnet “super aggregator” behavior.
-- 🆕 Create/write the **shadow simulation outcomes document** requested May 21:
-  - expected aggregator hardware profile,
-  - how many subnets a typical aggregator should cover,
-  - required aggregator redundancy,
-  - whether capable nodes should auto-upgrade into aggregators,
-  - whether recursive / second-level aggregation is worth its extra latency,
-  - aggregation window target: <0.4s compute budget when propagation needs the rest of the 0.8s slot.
-- 🔄 Continue work around issue `#863` — slow slot interval / event-loop starvation. PRs `#883`, `#884`, `#886` landed, but the issue remains open pending validation.
-- 🔄 Keep issue `#910` in view: make `blocks_by_root` peer selection slot-aware. This is separate from the checkpoint-peer-affinity PR.
+- 🔥 Lead DevNet 4 multi-subnet / high-validator testing and preserve logs before restarts.
+- 🔥 For `#942`, validate whether PR `#948` image prevents crashes/stalls; if not, capture debug logs and isolate why Zeam uniquely stops receiving gossip.
+- 🔥 Run the May 29 requested matrix:
+  - all-Zeam network,
+  - network without ethlambda,
+  - then mixed-client network after stability improves.
+- 🔥 Target P95 under 1s on the current setup before expanding scale; May 29 goal was to work toward P95 `<1s` over the weekend.
+- 🔥 Update issues `#899` / `#942` with whether the remaining bottleneck is aggregation compute, gossip coverage, block proposal compaction, peer/fetch behavior, or fork-choice/head divergence.
+- 🔄 Track subnet aggregate coverage + gossip attestation coverage metrics in live dashboards and identify which subnet/client data is missing.
+- 🔄 Continue `#863` validation; distinguish “missed/orphaned slots” from “node behind/slow” in logs.
+- 🔄 Keep `#910` in view: slot-aware `blocks_by_root` peer selection remains separate from checkpoint-peer-affinity work.
+- 📌 For shadow, provide/estimate server needs once Kamil’s scripts/topologies are ready; 64GB was considered enough for ~100-node first runs.
 
-### Watch / recently discussed
-- ⚠️ macOS simtest / node3 finalization timeout was discussed May 22. PR `#914` reportedly addressed it and is merged; keep watch for flakiness/regressions.
-- 🔄 `blockblaz/lean-quickstart#151` — shadow network simulator automation remains open.
+### Recently discussed
+- ⚠️ May 29: snappy/decode errors were observed when ethlambda proposed; other clients rejected and continued, Zeam stalled. Need prove whether this is decode recovery, gossip subscription/mesh, peer rejection, or sync/fetch logic.
+- ⚠️ May 22: multi-subnet fork-choice/head divergence was observed across clients; this may amplify aggregation failures and finality stalls.
 
 ---
 
 ## 👤 Anshal
 
 ### Active
-- 🔥 DevNet 5: spec PR is merged, but CI fixture generation is still too slow. Follow-ups from May 15:
-  - coordinate with Toma on heavier GitHub runners / CI plan,
-  - keep max attestations configurable,
-  - use lower max attestations for tests if needed without changing target behavior,
-  - consider macOS runner only if it is the practical unblocker.
-- 🔥 Zeam DevNet 5 implementation / proof logic:
-  - verify block proposal behavior when fork-choice justified/finalized has moved but split/imported aggregate payloads have not arrived yet,
-  - rely on aggregator splitting via gossip, but ensure proposer failure/skip behavior is correct,
-  - add a spec test or Hive test for this behavior if possible.
-- 🔥 Aggregation optimization:
-  - revisit threading architecture,
-  - keep aggregation off hot/libxev paths,
-  - explore parallel/tree aggregation where useful,
-  - make sure async aggregation has a timeout/window and does not block slot progression.
-- 🔄 Address comments on the PR removing scheduled gossip-network calls from the libxev thread.
-- 🔄 Continue resolving comments on the `ssz.zig` / Merkle root caching PR.
-- 🔄 Collate performance TODOs with Partha and Kai into a single performance issue/checklist so they can be burned down systematically.
+- 🔥 Aggregation optimization follow-ups from May 22:
+  - validate/extend parallel aggregation work (`#915` discussion is closed, but design follow-ups remain),
+  - add configurable aggregation parallelization factor,
+  - prioritize attestation data matching local fork-choice / latest justified view,
+  - publish each aggregate immediately on completion,
+  - start compaction earlier when enough signatures are available instead of waiting for the interval boundary.
+- 🔥 Add block proposal deadline behavior: compact until the time budget is hit, then propose with whatever compacted payloads are ready.
+- 🔥 Perf/profile aggregation on real DevNet setup: measure CPU/core utilization, thread pool behavior, and whether underlying leanMultisig already parallelizes enough.
+- 🔄 Continue SSZ clone / Merkle root caching work:
+  - verify variable-type lists and embedded variable lists,
+  - consider caching composite-type hashing where benchmarking shows benefit,
+  - make type parameters comptime where needed for size/min/max calculations.
+- 🔄 Review Kai’s DevNet 5 implementation / aggregation branch updates and coordinate on leanMultisig breaking API changes.
+- 🔄 Investigate async/concurrency options after Zig 0.16; Kai warned evented async IO may not be ready and suggested `c-io` / moving away from libxev hacks.
+- 🔄 Collate performance TODOs with Partha and Kai into a single performance issue/checklist.
 
 ### Recently clarified
-- ✅ Existing compact-attestation/proposal metrics were found, but May 20–21 discussion required more detailed metrics and upstream naming. Zeam `#914` and leanSpec `#735` are now merged; validate that they cover the requested proposal aggregation dimensions in live dashboards.
+- ✅ May 22: aggregation bottleneck is not just raw signature build time; prioritization, deadlines, fork-choice divergence, and block proposal compaction all matter.
+- ✅ Underlying leanMultisig may parallelize aggregation internally, so extra outer parallelism should be configurable and measured rather than assumed.
 
 ---
 
 ## 👤 Kai
 
 ### Active
-- 🔥 Start / continue Zeam **DevNet 5 implementation** now that leanSpec `#717` is merged.
-- 🔥 Validate threading changes in DevNet runs:
-  - avoid over-fine-grained `num_cpu - 3` style tuning,
-  - prefer simpler `num_cpu` sizing where threads are needed,
-  - compare Kai’s current changes vs full `num_cpu` worker counts and revert/tune only if the run shows regression.
-- 🔄 Review / help land remaining attestation-handling work (`#754` still open).
-- 🔄 Review aggregation-related PRs and regressions, especially where macOS simtest/finality timeout is involved.
-- 🔄 Check whether `cache = false` in CI/YAML is actually needed; try removing/changing it if CI remains green.
+- 🔥 Continue Zeam DevNet 5 implementation in `blockblaz/zeam#918`.
+- 🔥 Fix DevNet 5 CI/simtest practicality:
+  - configure CI simtest with larger slot time (8s or 12s if needed),
+  - ensure slot-time config is picked up from the DevNet spec / beam command,
+  - avoid disabling simtest unless truly unavoidable.
+- 🔥 Provide eLambda DevNet 5 interop/finalization screenshot so Gajinder can post the milestone.
+- 🔥 Move/prepare the `shadow` branch from DevNet 5 port to DevNet 5 and announce readiness in the shadow/PQ interop channel.
+- 🔄 Pull latest leanMultisig aggregation updates into DevNet 5 work; handle breaking API change where errors are returned instead of panics.
+- 🔄 Investigate Zeam DevNet 5 memory use (~2GB observed vs eLambda ~500MB) and catch-up stability under forks/low memory.
+- 🔄 Help Kamil add shadow-simulation knobs to Zeam:
+  - artificial sleeps for signature aggregation / verification / start aggregation,
+  - env var or CLI flag control,
+  - default zero sleeps in production.
+- 🔄 Review aggregation-related PRs and regressions, especially macOS simtest/finality timeout.
 
 ### Deferred
-- 📌 Pure-Zig libp2p / ETH-P2P remains deferred: current fork has Lighthouse interop issues and lacks dedicated resourcing.
+- 📌 Pure-Zig libp2p / ETH-P2P remains deferred until dedicated resourcing exists.
+
+---
+
+## 👤 Kamil / Shadow simulations
+
+### Active
+- 🔥 Continue leading shadow-simulation setup and topology design.
+- 🔥 Baseline achieved by May 22: Zeam + Clean can run under shadow / lean-quickstart; non-aggregator Zeam memory ~400MB/node, aggregator ~600MB/node; 64GB server likely enough for ~100-node first simulations.
+- 🔥 Add realistic underlay topologies:
+  - EIP-7870-style bandwidth assumptions,
+  - geographic latency distributions from Ethereum node country distribution,
+  - possible RIPE Atlas-derived latency sampling.
+- 🔥 Define and test simulation parameters:
+  - node count / validator count per node,
+  - one aggregator per subnet baseline,
+  - aggregator redundancy,
+  - optional multi-subnet/super-aggregator experiments,
+  - aggregation/verification artificial compute sleeps.
+- 🔄 Prototype visualizations from shadow outputs: attestation propagation, per-slot bandwidth spikes, duplicate gossip, and bottleneck summaries.
+- 🔄 Revisit server procurement once scripts/topology/log collection are stable enough to run overnight experiments.
 
 ---
 
 ## 👤 Katya
 
-### Active / still relevant from prior rolling list
+### Active / still relevant
 - 🔄 Grafana / alert hygiene: avoid noisy head-grow/no-finalization alerts and route only useful alerts to the intended destination.
 - 🔄 Keep Grafana webhook routing behavior under watch after prior Telegram 400 / DM-vs-topic glitches.
 - 🔄 Upstream useful Zeam-specific metrics to leanSpec when they become protocol-level rather than implementation-specific.
@@ -141,62 +163,60 @@ This file tracks work that survived the weekly calls / community discussion. Clo
 ## 👤 Noopur / Zclaw / automation
 
 ### Active
-- 🔥 Fix or diagnose **Zclaw GitHub/Telegram command polling**. May 15 call noted that commands on PRs/comments were not being picked up automatically and needed manual prompting.
-- 🔥 Confirm model-selection commands work not only in Telegram prompts but also in GitHub issue descriptions/comments. If not, configure/support that flow.
-- 🔥 Post/pin a short Zclaw usage guide in the Zclaw or main channel once model-selection behavior is confirmed.
-- 🆕 Add a CI task for the `shadow` branch:
-  - auto-rebase `shadow` on new tips,
-  - fail visibly if rebase fails,
-  - include `shadow` rebase success/failure in DevNet release messages.
-- 🔄 Release workflow: `@zeam_eth_bot create a release pr and a devnet4 tagged docker image as per the release readme document` was requested repeatedly in Telegram; make sure this command path is reliable and observable.
-- 🔄 Continue transcript ingestion into `zeam-pm` and use Telegram + transcripts + GitHub as the three sources for this rolling list.
-- 🔄 Explore cost reduction / local-model options for Zclaw/OpenClaw. May 8 discussion mentioned local GPU/server options, LocalAI-style setups, Llama, and needing better project memory to reduce token cost.
+- 🔥 Keep `zeam-pm` updated from the three sources of truth: Zeam Telegram group, Zeam meeting transcripts, and GitHub state.
+- 🔥 Maintain this rolling action list after each call; Noopur noted on May 22 that this rolling list was created by Zclaw and should continue accumulating across the three sources.
+- 🔥 Fix or diagnose Zclaw GitHub/Telegram command polling reliability; previous calls noted manual prompting was still needed in some cases.
+- 🔄 Confirm model-selection commands work in GitHub issue descriptions/comments as well as Telegram prompts.
+- 🔄 Post/pin a short Zclaw usage guide once model-selection behavior is confirmed.
+- 🔄 Release workflow reliability: release PR + DevNet tagged image commands should be observable and include `shadow` rebase status.
+- 🔄 Explore cost reduction / local-model options for Zclaw/OpenClaw where feasible.
 
 ### Watch / policy
 - ⚠️ If Zclaw is asked to approve PRs, keep the existing safety distinction: review/comment freely, approve only when explicitly asked by an authorized team member and not for consensus-critical/governance-sensitive changes.
-- ⚠️ Continue double-checking critical claims before filing/commenting. Prior lesson: do not claim a fix is included in a build/image without verifying merge/build state.
+- ⚠️ Continue double-checking critical claims before filing/commenting. Do not claim a fix is included in a build/image without verifying merge/build state.
 
 ---
 
-## 📋 Next Call Agenda — May 22, 2026
+## 📋 Next Call Agenda — June 5, 2026
 
-### 1. DevNet 4 aggregation performance / issue `#899`
-- Current aggregate build time after `#900`, `#902`, `#903`, `#914`.
-- Is Zeam still 5–7x slower than ethlambda in the latest official image?
-- Which bottleneck remains: recursive aggregation, Rayon/thread count, block proposal compacting, libxev/libp2p blocking, or something else?
+### 1. DevNet 4 stall / snappy decode / gossip (`#942`)
+- Did PR `#948` prevent crash/stall in current images?
+- What do debug logs show slot-by-slot when gossip stops?
+- Does all-Zeam or no-ethlambda run still stall?
+- Should the decode error naming be changed from “corrupt” to invalid/bad snappy input?
 
-### 2. Shadow simulations
-- Review the desired outcomes doc.
-- Decide aggregator hardware assumptions and subnet-per-aggregator target.
-- Decide whether second-level/recursive aggregation is viable under the 0.8s slot / ~0.4s compute budget.
-- Confirm `shadow` branch workflow and auto-rebase CI requirement.
+### 2. Aggregation performance and proposal deadlines (`#899`)
+- Current P95 after latest leanMultisig / aggregation changes.
+- Priority ordering for attestation data matching local fork-choice.
+- Configurable parallelization factor and immediate publish-on-complete behavior.
+- Block proposal deadline: stop compacting and publish ready payloads.
 
-### 3. DevNet 5
-- leanSpec `#717` merged: Zeam implementation status.
-- CI fixture generation problem: runner size, max attestations, macOS vs Linux, and test-specific configs.
-- Proof deconstruction / splitting / proposer behavior test plan.
+### 3. Metrics / observability
+- Subnet aggregate coverage + gossip attestation coverage dashboards.
+- Which subnets/clients are missing data?
+- Rename misleading `behind` terminology to `missed` / orphaned where appropriate.
 
-### 4. Topology and tooling
-- Confirm lean-quickstart default: one aggregator per subnet.
-- Confirm high-validator run status: 64 → 128 validator provisioning and results.
-- Confirm local tooling remains preferred unless Kubernetes/Curtosis tooling is clearly better.
+### 4. DevNet 5 (`#918`)
+- Zeam implementation status.
+- eLambda interop finalization screenshot / milestone.
+- CI simtest slot-time config and runner/resource plan.
+- Memory usage investigation.
 
-### 5. Zclaw / automation
-- Why command polling stopped or became unreliable.
-- Whether `/model` or equivalent model selection works in GitHub issues/comments.
-- Release PR + DevNet 4 tagged image automation status.
-- Transcript / Telegram / GitHub rolling-action maintenance process.
+### 5. Shadow simulations
+- Kamil’s topology/script status.
+- Zeam artificial sleep CLI/env knobs.
+- First realistic topology target and server procurement timing.
+- Visualization/log collection plan.
 
-### 6. Open PR/issue triage
-- `#754` attestation handling alignment.
-- `#817` async response handling / lock-free RPC — decide value/merge path.
-- `#915` minor cleanup.
-- `#863`, `#899`, `#910` open issues.
+### 6. Zclaw / PM automation
+- Confirm transcripts landed in `zeam-pm`.
+- Review rolling action maintenance process.
+- Review command polling / release automation reliability.
 
 ---
 
 ## Source notes
 
-- Meeting transcripts: `Zeam-Meetings/May-08.md`, `Zeam-Meetings/May-15.md`.
-- Telegram archive: `Telegram/zeam-group/2026-05-13.jsonl` through `2026-05-22.jsonl`.
-- GitHub state checked for referenced PRs/issues on 2026-05-22 before this update.
+- Meeting transcripts: `Zeam-Meetings/May-08.md`, `Zeam-Meetings/May-15.md`, `Zeam-Meetings/May-22.md`, `Zeam-Meetings/May-29.md`.
+- Telegram archive: `Telegram/zeam-group/2026-05-13.jsonl` through `2026-06-04.jsonl`.
+- GitHub spot-check on 2026-06-05 for referenced issues/PRs: `#754`, `#817`, `#863`, `#899`, `#910`, `#915`, `#931`, `#942`, `#946`, `#948`, `#972`; open PR list also checked.
